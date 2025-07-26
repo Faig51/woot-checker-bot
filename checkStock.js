@@ -3,9 +3,9 @@ const fs = require('fs');
 const sendTelegram = require('./telegram');
 
 const notifiedFile = './notified.json';
-const productsFile = './products.json';
+const productsTxtFile = './products.txt';
 
-// Əvvəldən göndərilmiş linkləri oxuyuruq
+// Göndərilmiş linkləri oxuyuruq
 let notifiedLinks = [];
 if (fs.existsSync(notifiedFile)) {
   try {
@@ -15,16 +15,20 @@ if (fs.existsSync(notifiedFile)) {
 }
 }
 
-// Məhsul siyahısını oxuyuruq
+// Məhsul siyahısını.txt faylından oxuyuruq
 let productLinks = [];
-if (fs.existsSync(productsFile)) {
+if (fs.existsSync(productsTxtFile)) {
   try {
-    productLinks = JSON.parse(fs.readFileSync(productsFile, 'utf-8'));
+    const txtData = fs.readFileSync(productsTxtFile, 'utf-8');
+    productLinks = txtData
+.split('\n')
+.map(line => line.trim())
+.filter(line => line.length> 0);
 } catch (e) {
-    console.error('❌ products.json oxunmadı:', e.message);
+    console.error('❌ products.txt oxunmadı:', e.message);
 }
 } else {
-  console.error('❌ products.json faylı tapılmadı!');
+  console.error('❌ products.txt faylı tapılmadı!');
   process.exit(1);
 }
 
@@ -40,7 +44,6 @@ async function checkSoldOut(url) {
         await sendTelegram(message);
         console.log(`📢 Yeni sold out tapıldı: ${url}`);
         notifiedLinks.push(url);
-
         fs.writeFileSync(notifiedFile, JSON.stringify(notifiedLinks, null, 2));
 } else {
         console.log(`⏳ Artıq bildirilmiş → ${url}`);
@@ -53,9 +56,9 @@ async function checkSoldOut(url) {
 }
 }
 
-// Skripti işə salırıq
+// Botu işə salırıq
 async function run() {
-  console.log(`🚀 Yoxlama başlayır (${productLinks.length} məhsul)...`);
+  console.log(`🚀 ${productLinks.length} məhsul yoxlanır...`);
   for (const url of productLinks) {
     await checkSoldOut(url);
 }
@@ -63,15 +66,3 @@ async function run() {
 }
 
 run();
-
-
----
-
-*💡 Əlavə fayl: products.json*
-
-json
-[
-  "https://sellout.woot.com/offers/caremax-cups-with-lids-25-4oz-specimen-jar",
-  "https://home.woot.com/offers/honey-can-do-large-trunk-organizer-grey-6?ref=w_cnt_wp_0_2"
-]
-
