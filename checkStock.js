@@ -44,7 +44,13 @@ async function checkSoldOut(url) {
         await sendTelegram(message);
         console.log(`📢 Yeni sold out tapıldı: ${url}`);
         notifiedLinks.push(url);
-        fs.writeFileSync(notifiedFile, JSON.stringify(notifiedLinks, null, 2));
+
+        try {
+          fs.writeFileSync(notifiedFile, JSON.stringify(notifiedLinks, null, 2));
+          console.log(`🗂 notified.json yeniləndi → ${url}`);
+} catch (e) {
+          console.error(`❌ notified.json yazılmadı: ${e.message}`);
+}
 } else {
         console.log(`⏳ Artıq bildirilmiş → ${url}`);
 }
@@ -52,7 +58,7 @@ async function checkSoldOut(url) {
       console.log(`✅ Hələ mövcuddur → ${url}`);
 }
 } catch (err) {
-    console.error(`❌ Sorğuda xəta → ${url}`, err.message);
+    console.error(`❌ Sorğuda xəta → ${url}: ${err.message}`);
 }
 }
 
