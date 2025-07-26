@@ -3,18 +3,32 @@ const fs = require('fs');
 const sendTelegram = require('./telegram');
 
 const notifiedFile = './notified.json';
+const productsFile = './products.json';
 
-// JSON fayldan əvvəldən göndərilmiş linkləri oxuyuruq
+// Əvvəldən göndərilmiş linkləri oxuyuruq
 let notifiedLinks = [];
 if (fs.existsSync(notifiedFile)) {
-  notifiedLinks = JSON.parse(fs.readFileSync(notifiedFile));
+  try {
+    notifiedLinks = JSON.parse(fs.readFileSync(notifiedFile, 'utf-8'));
+} catch (e) {
+    console.error('❌ notified.json oxunmadı:', e.message);
+}
 }
 
-const productList = [
-  'https://sellout.woot.com/offers/caremax-cups-with-lids-25-4oz-specimen-jar',
-  'https://home.woot.com/offers/honey-can-do-large-trunk-organizer-grey-6?ref=w_cnt_wp_0_2'
-];
+// Məhsul siyahısını oxuyuruq
+let productLinks = [];
+if (fs.existsSync(productsFile)) {
+  try {
+    productLinks = JSON.parse(fs.readFileSync(productsFile, 'utf-8'));
+} catch (e) {
+    console.error('❌ products.json oxunmadı:', e.message);
+}
+} else {
+  console.error('❌ products.json faylı tapılmadı!');
+  process.exit(1);
+}
 
+// Sold Out yoxlaması
 async function checkSoldOut(url) {
   try {
     const res = await axios.get(url);
@@ -22,11 +36,11 @@ async function checkSoldOut(url) {
 
     if (html.includes('Sold Out')) {
       if (!notifiedLinks.includes(url)) {
-        await sendTelegram(`🚫 SOLD OUT → ${url}`);
-        console.log(`📢 İlk dəfə tapıldı: ${url}`);
+        const message = `🚫 SOLD OUT\n${url}`;
+        await sendTelegram(message);
+        console.log(`📢 Yeni sold out tapıldı: ${url}`);
         notifiedLinks.push(url);
 
-        // Yeni göndərilən linkləri JSON fayla yazırıq
         fs.writeFileSync(notifiedFile, JSON.stringify(notifiedLinks, null, 2));
 } else {
         console.log(`⏳ Artıq bildirilmiş → ${url}`);
@@ -39,10 +53,25 @@ async function checkSoldOut(url) {
 }
 }
 
+// Skripti işə salırıq
 async function run() {
-  for (const url of productList) {
+  console.log(`🚀 Yoxlama başlayır (${productLinks.length} məhsul)...`);
+  for (const url of productLinks) {
     await checkSoldOut(url);
 }
+  console.log('✅ Yoxlama tamamlandı.');
 }
 
 run();
+
+
+---
+
+*💡 Əlavə fayl: products.json*
+
+json
+[
+  "https://sellout.woot.com/offers/caremax-cups-with-lids-25-4oz-specimen-jar",
+  "https://home.woot.com/offers/honey-can-do-large-trunk-organizer-grey-6?ref=w_cnt_wp_0_2"
+]
+
