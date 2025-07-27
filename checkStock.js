@@ -9,7 +9,7 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// 🔍 Bildirilmiş linki yoxlayır
+// 🔍 Link daha əvvəl bildirilibmi?
 async function isAlreadyNotified(url) {
   const { data, error} = await supabase
 .from('notified_links')
@@ -24,16 +24,21 @@ async function isAlreadyNotified(url) {
   return!!data;
 }
 
-// 💾 Yeni linki bazaya yazır
+// 💾 Yeni linki bazaya yazır — təkmilləşdirilmiş versiya
 async function addToNotified(url) {
-  const { error} = await supabase
+  console.log(`🔄 Supabase insert cəhd edilir → ${url}`);
+
+  const { data, error} = await supabase
 .from('notified_links')
-.insert({ url});
+.insert({ url})
+.select();
 
   if (error) {
-    console.error(`❌ Supabase yazılmadı → ${url}: ${error.message}`);
+    console.error(`❌ Supabase insert XƏTASI → ${url}: ${error.message}`);
+} else if (data && data.length> 0) {
+    console.log(`✅ Supabase insert uğurlu oldu → ${url}`);
 } else {
-    console.log(`🗂 Supabase cədvəlinə əlavə olundu → ${url}`);
+    console.warn(`⚠ Supabase insert heç nə qaytarmadı → ${url}`);
 }
 }
 
@@ -92,3 +97,4 @@ async function run() {
 }
 
 run();
+
