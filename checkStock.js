@@ -1,17 +1,21 @@
-// 🔧 Modullar
 const axios = require('axios');
-const sendTelegram = require('./telegram');
 const fs = require('fs');
-const { createClient} = require('@supabase/supabase-js');
+const sendTelegram = require('./telegram');
 
-// 🛠 Supabase bağlantısı
-const supabaseUrl = 'https://YOUR_PROJECT_ID.supabase.co'; // öz URL-inlə əvəz et
-const supabaseKey = 'YOUR_SUPABASE_ANON_KEY';              // öz public API açarınla əvəz et
-const supabase = createClient(supabaseUrl, supabaseKey);
-
-// 📄 Məhsul siyahısı
+const notifiedFile = './notified.json';
 const productsTxtFile = './products.txt';
 
+// Göndərilmiş linkləri oxuyuruq
+let notifiedLinks = [];
+if (fs.existsSync(notifiedFile)) {
+  try {
+    notifiedLinks = JSON.parse(fs.readFileSync(notifiedFile, 'utf-8'));
+} catch (e) {
+    console.error('❌ notified.json oxunmadı:', e.message);
+}
+}
+
+// Məhsul siyahısını.txt faylından oxuyuruq
 let productLinks = [];
 if (fs.existsSync(productsTxtFile)) {
   try {
@@ -28,65 +32,44 @@ if (fs.existsSync(productsTxtFile)) {
   process.exit(1);
 }
 
-// 🔍 Supabase ilə bildiriş yoxlama funksiyası
-async function isAlreadyNotified(url) {
-  const { data, error} = await supabase
-.from('notified_links')
-.select('url')
-.eq('url', url)
-.single();
-
-  if (error && error.code!== 'PGRST116') {
-    console.error(`❗ Supabase yoxlamasında xəta → ${url}: ${error.message}`);
-}
-
-  return!!data;
-}
-
-// 💾 Yeni linki bazaya yazan funksiya
-async function addToNotified(url) {
-  const { error} = await supabase
-.from('notified_links')
-.insert({ url});
-
-  if (error) {
-    console.error(`❌ Supabase yazılmadı → ${url}: ${error.message}`);
-} else {
-    console.log(`🗂 Supabase cədvəlinə əlavə olundu → ${url}`);
-}
-}
-
-// 🧠 Stok yoxlama funksiyası
-async function checkStock(url) {
+// Sold Out yoxlaması
+async function checkSoldOut(url) {
   try {
     const res = await axios.get(url);
     const html = res.data;
 
     if (html.includes('Sold Out')) {
-      const alreadySent = await isAlreadyNotified(url);
-      if (!alreadySent) {
-        await sendTelegram(`🚫 SOLD OUT\n${url}`);
-        console.log(`📢 Yeni sold out tapıldı → ${url}`);
-        await addToNotified(url);
-} else {
-        console.log(`⏳ Artıq bildirilmiş → ${url}`);
+      if (!notifiedLinks.includes(url)) {
+        const message = 🚫 SOLD OUT\n${url};
+        await sendTelegram(message);
+        console.log(📢 Yeni sold out tapıldı: ${url});
+        notifiedLinks.push(url);
+
+        try {
+          fs.writeFileSync(notifiedFile, JSON.stringify(notifiedLinks, null, 2));
+          console.log(🗂 notified.json yeniləndi → ${url});
+} catch (e) {
+          console.error(❌ notified.json yazılmadı: ${e.message});
 }
 } else {
-      console.log(`✅ Stokda var → ${url}`);
+        console.log(⏳ Artıq bildirilmiş → ${url});
+}
+} else {
+      console.log(✅ Hələ mövcuddur → ${url});
 }
 } catch (err) {
-    console.error(`❌ Sorğuda xəta → ${url}: ${err.message}`);
+    console.error(❌ Sorğuda xəta → ${url}: ${err.message});
 }
 }
 
-// 🚀 Botu işə salırıq
+// Botu işə salırıq
 async function run() {
-  console.log(`🔍 ${productLinks.length} məhsul yoxlanır...`);
+  console.log(🚀 ${productLinks.length} məhsul yoxlanır...);
   for (const url of productLinks) {
-    await checkStock(url);
+    await checkSoldOut(url);
 }
   console.log('✅ Yoxlama tamamlandı.');
-  process.exit(0);
+  process.exit(0); // Doğru yer buradır ⬅
 }
 
 run();
