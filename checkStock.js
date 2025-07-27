@@ -69,8 +69,7 @@ async function run() {
     await checkSoldOut(url);
 }
   console.log('✅ Yoxlama tamamlandı.');
+  process.exit(0); // Doğru yer buradır ⬅
 }
 
 run();
-
-process.exit(0);
