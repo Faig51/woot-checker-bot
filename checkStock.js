@@ -1,4 +1,5 @@
 const axios = require('axios');
+const fs = require('fs');
 const sendTelegram = require('./telegram');
 const { createClient} = require('@supabase/supabase-js');
 
@@ -8,7 +9,7 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// 🔍 Link daha əvvəl bildirilibmi?
+// 🔍 Bildirilmiş linki yoxlayır
 async function isAlreadyNotified(url) {
   const { data, error} = await supabase
 .from('notified_links')
@@ -23,7 +24,7 @@ async function isAlreadyNotified(url) {
   return!!data;
 }
 
-// 💾 Yeni bildirilmiş linki cədvələ yaz
+// 💾 Yeni linki bazaya yazır
 async function addToNotified(url) {
   const { error} = await supabase
 .from('notified_links')
@@ -36,7 +37,7 @@ async function addToNotified(url) {
 }
 }
 
-// 📦 Stok yoxlayıcı əsas funksiya
+// 📦 Stok statusunu yoxlayır
 async function checkStock(url) {
   try {
     const res = await axios.get(url);
@@ -52,12 +53,42 @@ async function checkStock(url) {
 } else {
         console.log(`⏳ Artıq bildirilmiş → ${url}`);
 }
+
 } else {
       console.log(`✅ Stokda var → ${url}`);
 }
-
 } catch (err) {
     console.error(`❌ Sorğuda xəta → ${url}: ${err.message}`);
 }
 }
 
+// 📄 products.txt faylını oxuyur
+const productsTxtFile = './products.txt';
+
+let productLinks = [];
+if (fs.existsSync(productsTxtFile)) {
+  try {
+    const txtData = fs.readFileSync(productsTxtFile, 'utf-8');
+    productLinks = txtData
+.split('\n')
+.map(line => line.trim())
+.filter(line => line.length> 0);
+} catch (e) {
+    console.error('❌ products.txt oxunmadı:', e.message);
+}
+} else {
+  console.error('❌ products.txt faylı tapılmadı!');
+  process.exit(1);
+}
+
+// 🚀 Sistemi işə salır
+async function run() {
+  console.log(`🔍 ${productLinks.length} məhsul yoxlanır...`);
+  for (const url of productLinks) {
+    await checkStock(url);
+}
+  console.log('✅ Yoxlama tamamlandı.');
+  process.exit(0);
+}
+
+run();
