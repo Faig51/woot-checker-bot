@@ -5,32 +5,42 @@ const { createClient} = require('@supabase/supabase-js');
 
 // 🔗 Supabase bağlantısı
 const supabaseUrl = 'https://mefhicaqghykerfyuola.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lZmhpY2FxZ2h5a2VyZnl1b2xhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM2MDQzMzEsImV4cCI6MjA2OTE4MDMzMX0._A2z39hLZ1xmj8kkDwJpfsl6mpiHX5-SEw9OfULHfIU';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // sənin açarın
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+// 🔧 URL formatını normallaşdırır
+function normalizeURL(url) {
+  return url.trim().toLowerCase()
+.replace(/^https?:\/\//, '')
+.replace(/^www\./, '')
+.replace(/\/$/, '');
+}
+
 // 🔍 Link daha əvvəl bildirilibmi?
 async function isAlreadyNotified(url) {
+  const normalized = normalizeURL(url);
+
   const { data, error} = await supabase
 .from('notified_links')
-.select('url')
-.eq('url', url)
-.single();
+.select('url');
 
-  if (error && error.code!== 'PGRST116') {
+  if (error) {
     console.error(`❗ Supabase yoxlamasında xəta → ${url}: ${error.message}`);
+    return false;
 }
 
-  return!!data;
+  return data.some(row => normalizeURL(row.url) === normalized);
 }
 
-// 💾 Yeni linki bazaya yazır — təkmilləşdirilmiş versiya
+// 💾 Yeni linki bazaya yazır
 async function addToNotified(url) {
+  const cleaned = normalizeURL(url);
   console.log(`🔄 Supabase insert cəhd edilir → ${url}`);
 
   const { data, error} = await supabase
 .from('notified_links')
-.insert({ url})
+.insert({ url: cleaned})
 .select();
 
   if (error) {
@@ -58,7 +68,6 @@ async function checkStock(url) {
 } else {
         console.log(`⏳ Artıq bildirilmiş → ${url}`);
 }
-
 } else {
       console.log(`✅ Stokda var → ${url}`);
 }
@@ -97,4 +106,3 @@ async function run() {
 }
 
 run();
-
