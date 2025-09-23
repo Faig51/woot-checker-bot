@@ -14,7 +14,6 @@ https://tools.woot.com/offers/replacement-for-pur-water-filter?ref=w_cnt_lnd_cat
 https://electronics.woot.com/offers/goldsource-500w-voltage-transformer-converter-1?ref=w_cnt_lnd_cat_elec_10_10
 https://sellout.woot.com/offers/diafield-1850w-heat-gun?ref=w_cnt_lnd_cat_tool_3_5
 https://electronics.woot.com/offers/8bitdo-retro-87-rgb-mechanical-keyboard-1?ref=w_cnt_lnd_cat_elec_14_2
-https://electronics.woot.com/offers/new-8bitdo-m-edition-retro-mechanical-keyboard-1?ref=w_cnt_lnd_cat_elec_14_2
 https://electronics.woot.com/offers/amazonbasics-12ft-3-5mm-auxiliary-male-to-female-audio-jack-extension-cable-3?ref=w_cnt_lnd_cat_elec_2_8
 https://sellout.woot.com/offers/cubestone-edr3rxd1-water-filter?ref=w_cnt_lnd_cat_home_2_5
 https://tools.woot.com/offers/sylvania-led-flood-light-bulb-5?ref=w_cnt_lnd_cat_tool_7_4
@@ -23,7 +22,6 @@ https://sellout.woot.com/offers/prexiso-4-in-1-line-laser-level-torpedo-level-2?
 https://sellout.woot.com/offers/just-for-men-easy-comb-in-color-8?ref=w_cnt_cdet_bssh_3
 https://sellout.woot.com/offers/monoprice-db9f-hd15m-5?ref=w_cnt_wp_0_23
 https://electronics.woot.com/offers/4-pack-amazonbasics-2400mah-nimh-rechargeable-aa-batteries?ref=w_cnt_lnd_cat_elec_2_6
-https://tools.woot.com/offers/purolator-purolator-l14612-premium-engine-protecti?ref=w_cnt_lnd_cat_tool_2_9
 https://electronics.woot.com/offers/aogetyo-hdmi-switch-4-computers-4k-30hz?ref=w_cnt_lnd_cat_elec_2_5
 https://electronics.woot.com/offers/bestway-hydro-force-1-person-kayak-set-25?ref=w_cnt_lnd_cat_alldeals_7
 https://sport.woot.com/offers/stealth-squat-trainer-3?ref=w_cnt_lnd_cat_sprt_2_8
@@ -32,6 +30,7 @@ https://sport.woot.com/offers/bestway-electric-air-pump-2?ref=w_cnt_wp_0_23
 https://home.woot.com/offers/laundry-detergent-sheets-300-loads-7?ref=w_cnt_cdet_bssh_1
 https://home.woot.com/offers/laundry-detergent-sheets-unscented?ref=w_cnt_wp_0_1
 https://tools.woot.com/offers/dtlpty-large-zip-ties-heavy-duty?ref=w_cnt_wp_0_1
+
 
 
 
